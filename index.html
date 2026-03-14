@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SchemeConnect – Your Government Benefits Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:         #0a0e1a;
+    --bg2:        #0f1628;
+    --bg3:        #151d35;
+    --card:       #1a2340;
+    --card2:      #1f2a4a;
+    --border:     #2a3558;
+    --accent:     #4f8ef7;
+    --accent2:    #7c4dff;
+    --green:      #00e5a0;
+    --orange:     #ff7043;
+    --yellow:     #ffd600;
+    --text:       #e8eef8;
+    --text2:      #8fa3c8;
+    --text3:      #5a7298;
+    --radius:     14px;
+    --shadow:     0 8px 40px rgba(0,0,0,0.5);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BG Glow ── */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(79,142,247,0.08) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,77,255,0.07) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── Layout ── */
+  .app { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+  /* ── Header ── */
+  header {
+    padding: 28px 0 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .logo-text h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.4px; }
+  .logo-text span { font-size: 0.72rem; color: var(--text3); font-weight: 400; letter-spacing: 0.5px; }
+  .header-badge {
+    background: rgba(0,229,160,0.12);
+    color: var(--green);
+    border: 1px solid rgba(0,229,160,0.3);
+    padding: 6px 14px; border-radius: 999px;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex; gap: 4px;
+    background: var(--bg2); border-radius: var(--radius);
+    padding: 5px; margin: 28px 0 0;
+  }
+  .tab-btn {
+    flex: 1; padding: 11px 14px; border: none; cursor: pointer;
+    background: transparent; color: var(--text3);
+    font-family: 'Sora', sans-serif; font-size: 0.82rem; font-weight: 500;
+    border-radius: 10px; transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--card2);
+    color: var(--text);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .tab-btn:hover:not(.active) { color: var(--text2); background: rgba(255,255,255,0.04); }
+
+  /* ── Panels ── */
+  .panel { display: none; padding: 28px 0; }
+  .panel.active { display: block; animation: fadeUp 0.3s ease; }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(14px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  /* ── Form ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 7px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 0.75rem; font-weight: 600; color: var(--text2); letter-spacing: 0.4px; text-transform: uppercase; }
+  input, select {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); border-radius: 10px;
+    padding: 11px 14px; font-family: 'Sora', sans-serif; font-size: 0.88rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.15); }
+  input::placeholder { color: var(--text3); }
+
+  .section-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--accent);
+    margin: 24px 0 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* ── Checkbox row ── */
+  .check-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+  .check-item {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    padding: 9px 14px; border-radius: 8px; cursor: pointer;
+    font-size: 0.83rem; color: var(--text2); transition: all 0.2s;
+    user-select: none;
+  }
+  .check-item input { display: none; }
+  .check-item.checked { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,0.1); }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 13px 28px; border: none; cursor: pointer; border-radius: 10px;
+    font-family: 'Sora', sans-serif; font-size: 0.88rem; font-weight: 600;
+    transition: all 0.2s; letter-spacing: 0.2px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff; box-shadow: 0 4px 20px rgba(79,142,247,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(79,142,247,0.5); }
+  .btn-secondary {
+    background: var(--card2); color: var(--text2); border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-green {
+    background: rgba(0,229,160,0.12); color: var(--green);
+    border: 1px solid rgba(0,229,160,0.3);
+  }
+  .btn-green:hover { background: rgba(0,229,160,0.2); }
+
+  .form-actions { display: flex; gap: 12px; margin-top: 28px; justify-content: flex-end; }
+
+  /* ── Progress Steps ── */
+  .steps {
+    display: flex; gap: 0; margin-bottom: 28px;
+    background: var(--bg2); border-radius: var(--radius); overflow: hidden;
+  }
+  .step {
+    flex: 1; padding: 12px; text-align: center;
+    font-size: 0.75rem; font-weight: 600; color: var(--text3);
+    position: relative; cursor: pointer;
+    border-right: 1px solid var(--border); transition: all 0.2s;
+  }
+  .step:last-child { border-right: none; }
+  .step.active { background: var(--card2); color: var(--accent); }
+  .step.done { color: var(--green); }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--border); color: var(--text3);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; margin-right: 7px; font-weight: 700;
+    transition: all 0.2s;
+  }
+  .step.active .step-num { background: var(--accent); color: #fff; }
+  .step.done .step-num { background: var(--green); color: var(--bg); }
+
+  /* ── Scheme Cards ── */
+  .results-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .results-header h2 { font-size: 1.1rem; font-weight: 700; }
+  .result-count {
+    background: rgba(79,142,247,0.15); color: var(--accent);
+    padding: 5px 13px; border-radius: 999px;
+    font-size: 0.78rem; font-weight: 600;
+  }
+
+  .scheme-filters {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .filter-chip {
+    padding: 7px 14px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--border); background: var(--card);
+    color: var(--text2); transition: all 0.2s;
+  }
+  .filter-chip.active { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,0.1); }
+
+  .schemes-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+
+  .scheme-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 22px;
+    transition: all 0.2s; cursor: pointer; position: relative; overflow: hidden;
+  }
+  .scheme-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: linear-gradient(180deg, var(--accent), var(--accent2));
+    border-radius: 4px 0 0 4px;
+  }
+  .scheme-card:hover { border-color: var(--accent); transform: translateX(4px); box-shadow: var(--shadow); }
+
+  .scheme-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .scheme-name { font-size: 0.95rem; font-weight: 600; line-height: 1.4; }
+  .scheme-score {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff; padding: 4px 10px; border-radius: 6px;
+    font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .scheme-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.55; margin-bottom: 12px; }
+
+  .scheme-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .badge {
+    padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 600;
+  }
+  .badge-fin { background: rgba(0,229,160,0.12); color: var(--green); }
+  .badge-non { background: rgba(79,142,247,0.12); color: var(--accent); }
+  .badge-central { background: rgba(255,214,0,0.12); color: var(--yellow); }
+  .badge-tn { background: rgba(255,112,67,0.12); color: var(--orange); }
+  .badge-type { background: rgba(124,77,255,0.12); color: #a78bfa; }
+
+  .scheme-reasons { margin-bottom: 14px; }
+  .reason-item { font-size: 0.76rem; color: var(--green); display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .reason-item::before { content: '✓'; font-weight: 700; }
+
+  .scheme-card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .ministry-text { font-size: 0.72rem; color: var(--text3); }
+
+  /* ── Scheme Detail Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 100; display: flex; align-items: flex-start;
+    justify-content: center; padding: 40px 20px; overflow-y: auto;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 18px; width: 100%; max-width: 680px;
+    padding: 32px; position: relative;
+    transform: translateY(30px); transition: transform 0.3s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-close {
+    position: absolute; top: 18px; right: 18px;
+    background: var(--card2); border: 1px solid var(--border);
+    color: var(--text2); width: 34px; height: 34px; border-radius: 8px;
+    cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { color: var(--text); border-color: var(--accent); }
+  .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; padding-right: 40px; }
+  .modal-ministry { font-size: 0.8rem; color: var(--text3); margin-bottom: 18px; }
+  .modal-section-label {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--text3); margin: 18px 0 10px;
+  }
+  .benefit-item, .doc-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 0; border-bottom: 1px solid var(--border);
+    font-size: 0.84rem; color: var(--text2);
+  }
+  .benefit-item:last-child, .doc-item:last-child { border-bottom: none; }
+  .benefit-icon { color: var(--green); font-size: 1rem; flex-shrink: 0; }
+  .doc-icon { color: var(--accent); font-size: 1rem; flex-shrink: 0; }
+  .apply-box {
+    background: linear-gradient(135deg, rgba(79,142,247,0.1), rgba(124,77,255,0.1));
+    border: 1px solid rgba(79,142,247,0.25);
+    border-radius: 12px; padding: 18px; margin-top: 20px;
+  }
+  .apply-box p { font-size: 0.83rem; color: var(--text2); margin-bottom: 14px; line-height: 1.5; }
+  .apply-btns { display: flex; gap: 10px; }
+
+  /* ── Dashboard Panel ── */
+  .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px;
+  }
+  .stat-card .stat-val { font-size: 1.8rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+  .stat-card .stat-label { font-size: 0.73rem; color: var(--text3); margin-top: 4px; }
+  .stat-green .stat-val { color: var(--green); }
+  .stat-blue .stat-val { color: var(--accent); }
+  .stat-yellow .stat-val { color: var(--yellow); }
+  .stat-purple .stat-val { color: #a78bfa; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--card2); border: 1px solid var(--green);
+    color: var(--green); padding: 13px 22px; border-radius: 10px;
+    font-size: 0.84rem; font-weight: 600;
+    z-index: 200; transform: translateY(80px); opacity: 0;
+    transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── Loading ── */
+  .loading-overlay {
+    position: fixed; inset: 0; background: rgba(10,14,26,0.85);
+    z-index: 150; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 18px;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .loading-overlay.show { opacity: 1; pointer-events: all; }
+  .spinner {
+    width: 50px; height: 50px; border: 3px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 0.88rem; color: var(--text2); }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid.cols3 { grid-template-columns: 1fr 1fr; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .tabs { flex-wrap: wrap; }
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center; padding: 60px 20px;
+    color: var(--text3);
+  }
+  .empty-state .icon { font-size: 3.5rem; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 1rem; font-weight: 600; color: var(--text2); margin-bottom: 8px; }
+  .empty-state p { font-size: 0.83rem; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🏛️</div>
+      <div class="logo-text">
+        <h1>SchemeConnect</h1>
+        <span>AI-Powered Government Benefits Finder</span>
+      </div>
+    </div>
+    <div class="header-badge">● LIVE DATA</div>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('profile')">📋 My Profile</button>
+    <button class="tab-btn" onclick="switchTab('results')">🎯 Recommendations</button>
+    <button class="tab-btn" onclick="switchTab('browse')">🔍 Browse Schemes</button>
+    <button class="tab-btn" onclick="switchTab('applications')">📁 My Applications</button>
+    <button class="tab-btn" onclick="switchTab('dashboard')">📊 Dashboard</button>
+  </div>
+
+  <!-- PANEL: Profile -->
+  <div id="tab-profile" class="panel active">
+    <div class="steps">
+      <div class="step active" id="step1" onclick="goToStep(1)">
+        <span class="step-num">1</span> Personal Info
+      </div>
+      <div class="step" id="step2" onclick="goToStep(2)">
+        <span class="step-num">2</span> Education
+      </div>
+      <div class="step" id="step3" onclick="goToStep(3)">
+        <span class="step-num">3</span> Financial & Social
+      </div>
+      <div class="step" id="step4" onclick="goToStep(4)">
+        <span class="step-num">4</span> Review & Submit
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div id="formStep1">
+      <div class="section-title">Personal Information</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input id="f_name" type="text" placeholder="e.g. Karthikeyan S" />
+        </div>
+        <div class="form-group">
+          <label>Date of Birth / Age *</label>
+          <input id="f_age" type="number" placeholder="e.g. 19" min="1" max="100" />
+        </div>
+        <div class="form-group">
+          <label>Gender *</label>
+          <select id="f_gender">
+            <option value="">Select Gender</option>
+            <option>Male</option><option>Female</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mobile Number</label>
+          <input id="f_phone" type="tel" placeholder="+91 98765 43210" />
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input id="f_email" type="email" placeholder="your@email.com" />
+        </div>
+        <div class="form-group">
+          <label>I am a... *</label>
+          <select id="f_user_type" onchange="updateUserTypeFields()">
+            <option value="">Select Type</option>
+            <option value="student">Student (School/College)</option>
+            <option value="farmer">Farmer</option>
+            <option value="self employed">Self-Employed / Entrepreneur</option>
+            <option value="general public">General Public / Job Seeker</option>
+            <option value="govt employee">Government Employee</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>State *</label>
+          <select id="f_state">
+            <option value="Tamil Nadu">Tamil Nadu</option>
+            <option value="Andhra Pradesh">Andhra Pradesh</option>
+            <option value="Karnataka">Karnataka</option>
+            <option value="Kerala">Kerala</option>
+            <option value="Maharashtra">Maharashtra</option>
+            <option value="Delhi">Delhi</option>
+            <option value="Uttar Pradesh">Uttar Pradesh</option>
+            <option value="Bihar">Bihar</option>
+            <option value="West Bengal">West Bengal</option>
+            <option value="Rajasthan">Rajasthan</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>District</label>
+          <input id="f_district" type="text" placeholder="e.g. Trichy" />
+        </div>
+        <div class="form-group">
+          <label>Area Type</label>
+          <select id="f_area_type">
+            <option value="Urban">Urban</option>
+            <option value="Rural">Rural</option>
+            <option value="Semi-Urban">Semi-Urban</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>PIN Code</label>
+          <input id="f_pincode" type="text" placeholder="620001" maxlength="6" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="goToStep(2)">Next: Education →</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="formStep2" style="display:none">
+      <div class="section-title">Education Details</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Highest Education Level *</label>
+          <select id="f_education_level">
+            <option value="">Select Level</option>
+            <option value="below 10th">Below 10th</option>
+            <option value="10th">10th Standard / SSLC</option>
+            <option value="11th">11th Standard</option>
+            <option value="12th">12th Standard / HSC</option>
+            <option value="diploma">Diploma / ITI</option>
+            <option value="ug">UG Degree (B.E./B.Sc./B.Com/BA etc.)</option>
+            <option value="pg">PG Degree (M.E./M.Sc./MBA etc.)</option>
+            <option value="phd">PhD / Doctorate</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Institution Type</label>
+          <select id="f_institution_type">
+            <option value="">Select</option>
+            <option value="School">School</option>
+            <option value="College">College</option>
+            <option value="University">University</option>
+            <option value="Polytechnic">Polytechnic</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Institution Name</label>
+          <input id="f_institution_name" type="text" placeholder="e.g. NIT Trichy / Government Higher Secondary School" />
+        </div>
+        <div class="form-group full">
+          <label>Course / Stream</label>
+          <input id="f_course" type="text" placeholder="e.g. B.E. Computer Science / 12th Science" />
+        </div>
+        <div class="form-group">
+          <label>10th Percentage / CGPA</label>
+          <input id="f_marks_10th" type="number" placeholder="e.g. 88.5" min="0" max="100" />
+        </div>
+        <div class="form-group">
+          <label>12th Percentage (if applicable)</label>
+          <input id="f_marks_12th" type="number" placeholder="e.g. 91.2" min="0" max="100" />
+        </div>
+        <div class="form-group">
+          <label>UG/PG CGPA (if applicable)</label>
+          <input id="f_cgpa" type="number" placeholder="e.g. 8.5" min="0" max="10" step="0.1" />
+        </div>
+      </div>
+      <div class="section-title">Special Status</div>
+      <div class="check-row">
+        <label class="check-item" id="chk_first_gen" onclick="toggleCheck('chk_first_gen','f_first_gen')">
+          <input type="checkbox" id="f_first_gen" />
+          🎓 First Graduate in Family
+        </label>
+        <label class="check-item" id="chk_disability" onclick="toggleCheck('chk_disability','f_disability')">
+          <input type="checkbox" id="f_disability" />
+          ♿ Person with Disability
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+        <button class="btn btn-primary" onclick="goToStep(3)">Next: Financial →</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="formStep3" style="display:none">
+      <div class="section-title">Social & Community Details</div>
+      <div class="form-grid cols3">
+        <div class="form-group">
+          <label>Caste Category *</label>
+          <select id="f_caste">
+            <option value="">Select</option>
+            <option value="OC">OC (General)</option>
+            <option value="BC">BC</option>
+            <option value="MBC">MBC</option>
+            <option value="OBC">OBC</option>
+            <option value="SC">SC (Scheduled Caste)</option>
+            <option value="ST">ST (Scheduled Tribe)</option>
+            <option value="Minority">Minority</option>
+            <option value="EBC">EBC</option>
+            <option value="DNT">DNT</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Religion</label>
+          <select id="f_religion">
+            <option value="">Select</option>
+            <option>Hindu</option><option>Muslim</option><option>Christian</option>
+            <option>Sikh</option><option>Buddhist</option><option>Jain</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Occupation</label>
+          <input id="f_occupation" type="text" placeholder="e.g. Farmer / Student" />
+        </div>
+      </div>
+
+      <div class="section-title">Financial Information</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Annual Family Income (₹) *</label>
+          <input id="f_annual_income" type="number" placeholder="e.g. 120000" />
+        </div>
+        <div class="form-group">
+          <label>Ration Card Type</label>
+          <select id="f_ration_card_type">
+            <option value="">None / Don't Know</option>
+            <option value="White">White (Above Poverty)</option>
+            <option value="Yellow">Yellow (BPL)</option>
+            <option value="Pink">Pink (Antyodaya / AAY)</option>
+            <option value="Green">Green (Priority HH)</option>
+          </select>
+        </div>
+      </div>
+      <div class="check-row" style="margin-top:8px">
+        <label class="check-item" id="chk_bpl" onclick="toggleCheck('chk_bpl','f_bpl_card')">
+          <input type="checkbox" id="f_bpl_card" />
+          📄 Have BPL Card
+        </label>
+        <label class="check-item" id="chk_farmer" onclick="toggleCheck('chk_farmer','f_is_farmer')">
+          <input type="checkbox" id="f_is_farmer" />
+          🌾 Farmer / Cultivator
+        </label>
+        <label class="check-item" id="chk_self_emp" onclick="toggleCheck('chk_self_emp','f_is_self_employed')">
+          <input type="checkbox" id="f_is_self_employed" />
+          💼 Self-Employed
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+        <button class="btn btn-primary" onclick="goToStep(4)">Next: Review →</button>
+      </div>
+    </div>
+
+    <!-- Step 4 Review -->
+    <div id="formStep4" style="display:none">
+      <div class="section-title">Review Your Profile</div>
+      <div id="reviewSummary" style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;line-height:1.9;font-size:0.85rem;color:var(--text2);">
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="goToStep(3)">← Edit</button>
+        <button class="btn btn-primary" id="submitBtn" onclick="submitProfile()">
+          🔍 Find My Schemes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL: Results -->
+  <div id="tab-results" class="panel">
+    <div id="resultsContent">
+      <div class="empty-state">
+        <div class="icon">🎯</div>
+        <h3>No recommendations yet</h3>
+        <p>Complete your profile to get personalised scheme recommendations</p>
+        <br/>
+        <button class="btn btn-primary" onclick="switchTab('profile')">Fill Profile →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL: Browse -->
+  <div id="tab-browse" class="panel">
+    <div style="display:flex;gap:12px;margin-bottom:18px;">
+      <input id="searchInput" type="text" placeholder="Search schemes by name, keyword, ministry…" style="flex:1" oninput="searchSchemes()"/>
+      <select id="filterSource" style="width:160px" onchange="searchSchemes()">
+        <option value="">All Sources</option>
+        <option value="central">Central Govt</option>
+        <option value="state_tn">Tamil Nadu State</option>
+        <option value="private_csr">Private / CSR</option>
+      </select>
+    </div>
+    <div class="scheme-filters">
+      <div class="filter-chip active" onclick="filterType('')">All Types</div>
+      <div class="filter-chip" onclick="filterType('scholarship')">🎓 Scholarships</div>
+      <div class="filter-chip" onclick="filterType('health')">❤️ Health</div>
+      <div class="filter-chip" onclick="filterType('housing')">🏠 Housing</div>
+      <div class="filter-chip" onclick="filterType('loan')">💰 Loans</div>
+      <div class="filter-chip" onclick="filterType('agriculture')">🌾 Farmers</div>
+      <div class="filter-chip" onclick="filterType('employment')">💼 Employment</div>
+      <div class="filter-chip" onclick="filterType('welfare')">🤝 Welfare</div>
+    </div>
+    <div id="browseContent">
+      <div class="empty-state"><div class="spinner" style="margin:0 auto"></div></div>
+    </div>
+  </div>
+
+  <!-- PANEL: Applications -->
+  <div id="tab-applications" class="panel">
+    <div id="applicationsContent">
+      <div class="empty-state">
+        <div class="icon">📁</div>
+        <h3>No saved applications</h3>
+        <p>Save schemes from your recommendations to track them here</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL: Dashboard -->
+  <div id="tab-dashboard" class="panel">
+    <div class="stats-row">
+      <div class="stat-card stat-green">
+        <div class="stat-val" id="statTotal">–</div>
+        <div class="stat-label">Total Schemes in DB</div>
+      </div>
+      <div class="stat-card stat-blue">
+        <div class="stat-val" id="statCentral">–</div>
+        <div class="stat-label">Central Govt Schemes</div>
+      </div>
+      <div class="stat-card stat-yellow">
+        <div class="stat-val" id="statTN">–</div>
+        <div class="stat-label">Tamil Nadu Schemes</div>
+      </div>
+      <div class="stat-card stat-purple">
+        <div class="stat-val" id="statUsers">–</div>
+        <div class="stat-label">Registered Users</div>
+      </div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;">
+      <div class="section-title">About SchemeConnect ML Engine</div>
+      <p style="font-size:0.84rem;color:var(--text2);line-height:1.7">
+        SchemeConnect uses a <strong style="color:var(--accent)">two-stage ML pipeline</strong>:<br/><br/>
+        <strong>Stage 1 – Hard Rule Filter:</strong> Eliminates ineligible schemes based on age limits, income caps, caste categories, gender requirements, state restrictions, and education level.<br/><br/>
+        <strong>Stage 2 – Weighted Ensemble Scoring:</strong><br/>
+        • <strong>TF-IDF Cosine Similarity (30%)</strong> – Converts your profile into a text query and matches it against scheme keywords/descriptions<br/>
+        • <strong>Rule Score (50%)</strong> – How closely you match scheme criteria (marks, income ratio, disability match)<br/>
+        • <strong>Tag Boost (20%)</strong> – Bonus for exact user-type, caste, and occupation tag matches<br/><br/>
+        Data is sourced from <strong>myscheme.gov.in</strong>, <strong>tn.gov.in</strong>, and <strong>india.gov.in</strong> — refreshed daily via automated scraping.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="schemeModal" onclick="closeModal(event)">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Analysing your profile with ML engine…</div>
+</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+const API_BASE = 'http://localhost:5000/api'; // Change in production
+let currentUserId = null;
+let currentSchemes = [];
+let activeTypeFilter = '';
+let savedApplications = JSON.parse(localStorage.getItem('sc_apps') || '[]');
+let userProfile = JSON.parse(localStorage.getItem('sc_profile') || 'null');
+
+// ── Tab Navigation ───────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const idx = ['profile','results','browse','applications','dashboard'].indexOf(name);
+  document.querySelectorAll('.tab-btn')[idx]?.classList.add('active');
+
+  if (name === 'browse')       loadBrowse();
+  if (name === 'applications') renderApplications();
+  if (name === 'dashboard')    loadStats();
+}
+
+// ── Step Navigation ──────────────────────────────────────────────────────────
+function goToStep(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('formStep' + i).style.display = (i === n) ? '' : 'none';
+    const s = document.getElementById('step' + i);
+    s.classList.toggle('active', i === n);
+    s.classList.toggle('done',   i < n);
+  });
+  if (n === 4) buildReview();
+}
+
+// ── Check Toggles ────────────────────────────────────────────────────────────
+function toggleCheck(wrapId, inputId) {
+  const inp = document.getElementById(inputId);
+  inp.checked = !inp.checked;
+  document.getElementById(wrapId).classList.toggle('checked', inp.checked);
+}
+
+function updateUserTypeFields() {}
+
+// ── Review Builder ───────────────────────────────────────────────────────────
+function buildReview() {
+  const g = id => document.getElementById(id)?.value || '';
+  const b = id => document.getElementById(id)?.checked ? 'Yes' : 'No';
+  const rows = [
+    ['Name', g('f_name')], ['Age', g('f_age')], ['Gender', g('f_gender')],
+    ['User Type', g('f_user_type')], ['State', g('f_state')], ['District', g('f_district')],
+    ['Education', g('f_education_level')], ['Institution', g('f_institution_name')],
+    ['10th Marks', g('f_marks_10th') + '%'], ['12th Marks', g('f_marks_12th') + '%'],
+    ['CGPA', g('f_cgpa')], ['Caste', g('f_caste')], ['Annual Income', '₹ ' + g('f_annual_income')],
+    ['BPL Card', b('f_bpl_card')], ['Disability', b('f_disability')],
+    ['First Graduate', b('f_first_gen')], ['Farmer', b('f_is_farmer')],
+  ];
+  document.getElementById('reviewSummary').innerHTML = rows
+    .filter(r => r[1] && r[1] !== '% ' && r[1] !== '₹ ')
+    .map(r => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:7px 0">
+      <span style="color:var(--text3);font-size:0.78rem;font-weight:600">${r[0].toUpperCase()}</span>
+      <span style="color:var(--text);font-weight:500">${r[1]}</span>
+    </div>`).join('');
+}
+
+// ── Submit Profile ────────────────────────────────────────────────────────────
+async function submitProfile() {
+  const profile = collectProfile();
+  if (!profile.name || !profile.age || !profile.user_type) {
+    showToast('⚠️ Please fill Name, Age, and User Type', true);
+    goToStep(1); return;
+  }
+
+  showLoading('Analysing your profile with ML engine…');
+  localStorage.setItem('sc_profile', JSON.stringify(profile));
+
+  try {
+    const res = await fetch(`${API_BASE}/user/register`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(profile)
+    });
+    const data = await res.json();
+
+    if (data.user_id) {
+      currentUserId = data.user_id;
+      localStorage.setItem('sc_user_id', currentUserId);
+      renderRecommendations(data.recommendations || []);
+      switchTab('results');
+      showToast(`✅ Found ${(data.recommendations||[]).length} matching schemes!`);
+    } else {
+      // Offline demo mode
+      demoRecommend(profile);
+    }
+  } catch (e) {
+    // Backend not running – show demo data
+    demoRecommend(profile);
+  } finally {
+    hideLoading();
+  }
+}
+
+function collectProfile() {
+  const g = id => document.getElementById(id)?.value || '';
+  const b = id => document.getElementById(id)?.checked || false;
+  return {
+    name: g('f_name'), age: parseInt(g('f_age')) || 0,
+    gender: g('f_gender'), email: g('f_email'), phone: g('f_phone'),
+    state: g('f_state'), district: g('f_district'), pincode: g('f_pincode'),
+    area_type: g('f_area_type'), caste: g('f_caste'), religion: g('f_religion'),
+    annual_income: parseFloat(g('f_annual_income')) || 0,
+    bpl_card: b('f_bpl_card'), ration_card_type: g('f_ration_card_type'),
+    user_type: g('f_user_type'), education_level: g('f_education_level'),
+    institution_name: g('f_institution_name'), institution_type: g('f_institution_type'),
+    course: g('f_course'),
+    marks_10th: parseFloat(g('f_marks_10th')) || 0,
+    marks_12th: parseFloat(g('f_marks_12th')) || 0,
+    cgpa: parseFloat(g('f_cgpa')) || 0,
+    first_generation: b('f_first_gen'), disability: b('f_disability'),
+    occupation: g('f_occupation'), is_farmer: b('f_is_farmer'),
+    is_self_employed: b('f_is_self_employed'),
+  };
+}
+
+// ── Demo Mode (when backend is offline) ─────────────────────────────────────
+function demoRecommend(profile) {
+  const allSchemes = getDemoSchemes();
+  const filtered = allSchemes.filter(s => {
+    const caste = profile.caste?.toLowerCase() || '';
+    const income = profile.annual_income || 0;
+    const age = profile.age || 0;
+    const utype = profile.user_type?.toLowerCase() || '';
+    const edu = profile.education_level?.toLowerCase() || '';
+
+    if (s.max_income && income > s.max_income) return false;
+    if (s.min_age && age < s.min_age) return false;
+    if (s.max_age && age > s.max_age) return false;
+    if (s.gender_eligible !== 'all' && s.gender_eligible !== profile.gender?.toLowerCase()) return false;
+    if (s.user_types_list && !s.user_types_list.includes(utype) && !s.user_types_list.includes('all')) return false;
+
+    let score = 0.5;
+    if (s.caste_list?.includes(caste)) score += 0.3;
+    if (s.caste_list?.includes('all') || !s.caste_list) score += 0.1;
+    if (utype && s.keywords?.includes(utype)) score += 0.2;
+    if (profile.disability && s.requires_disability) score += 0.3;
+    if (profile.bpl_card && s.requires_bpl) score += 0.2;
+    s._score = Math.min(score, 1.0);
+    return true;
+  });
+
+  filtered.sort((a,b) => (b._score||0) - (a._score||0));
+  const recs = filtered.slice(0,15).map(s => ({...s, score: s._score || 0.7, match_reasons: ['Age eligible','Income within limit']}));
+  renderRecommendations(recs);
+  switchTab('results');
+  showToast(`✅ Found ${recs.length} matching schemes (demo mode)`);
+}
+
+// ── Render Recommendations ───────────────────────────────────────────────────
+function renderRecommendations(schemes) {
+  currentSchemes = schemes;
+  if (!schemes.length) {
+    document.getElementById('resultsContent').innerHTML = `
+      <div class="empty-state"><div class="icon">🔍</div>
+      <h3>No schemes found</h3>
+      <p>Try updating your profile with more details</p></div>`;
+    return;
+  }
+  document.getElementById('resultsContent').innerHTML = `
+    <div class="results-header">
+      <h2>Your Personalised Scheme Recommendations</h2>
+      <div class="result-count">${schemes.length} matches</div>
+    </div>
+    <div class="schemes-grid">${schemes.map(s => schemeCardHTML(s, true)).join('')}</div>`;
+}
+
+function schemeCardHTML(s, showSave=false) {
+  const score = Math.round((s.score||0.5) * 100);
+  const srcBadge = s.source === 'state_tn' ? 'badge-tn" >🏛 TN State' :
+                   s.source === 'central'  ? 'badge-central">🇮🇳 Central' : 'badge-non">🏢 CSR';
+  const finBadge = s.benefit_type === 'financial' ? 'badge-fin">💰 Financial' :
+                   s.benefit_type === 'non-financial' ? 'badge-non">🎁 Non-Financial' : 'badge-fin">✨ Both';
+  const reasons = (s.match_reasons||[]).slice(0,3).map(r =>
+    `<div class="reason-item">${r}</div>`).join('');
+  const benefits = (s.benefits||[]).slice(0,2).map(b =>
+    `<div class="benefit-item"><span class="benefit-icon">✦</span>${b}</div>`).join('');
+
+  return `<div class="scheme-card" onclick="openModal(${JSON.stringify(s).replace(/"/g,'&quot;')})">
+    <div class="scheme-card-top">
+      <div class="scheme-name">${s.name}</div>
+      <div class="scheme-score">${score}% match</div>
+    </div>
+    <div class="scheme-desc">${s.description||''}</div>
+    <div class="scheme-meta">
+      <span class="badge ${srcBadge}</span>
+      <span class="badge ${finBadge}</span>
+      <span class="badge badge-type">📋 ${(s.scheme_type||'welfare').toUpperCase()}</span>
+    </div>
+    ${reasons ? `<div class="scheme-reasons">${reasons}</div>` : ''}
+    ${benefits}
+    <div class="scheme-card-footer">
+      <div class="ministry-text">${s.ministry||''}</div>
+      ${showSave ? `<button class="btn btn-green" style="font-size:0.75rem;padding:7px 14px"
+        onclick="event.stopPropagation();saveApplication(${s.id||0}, '${(s.name||'').replace(/'/g,"\\'")}', ${s.score||0.5})">
+        💾 Save</button>` : ''}
+    </div>
+  </div>`;
+}
+
+// ── Modal ────────────────────────────────────────────────────────────────────
+function openModal(s) {
+  const benefits = (s.benefits||[]).map(b => `<div class="benefit-item"><span class="benefit-icon">✦</span>${b}</div>`).join('') || '<p style="color:var(--text3);font-size:0.83rem">See official portal for details</p>';
+  const docs = (s.documents||s.documents_needed||[]).map(d => `<div class="doc-item"><span class="doc-icon">📄</span>${d}</div>`).join('') || '<p style="color:var(--text3);font-size:0.83rem">Check official portal</p>';
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-title">${s.name}</div>
+    <div class="modal-ministry">${s.ministry||''} ${s.source === 'state_tn' ? '• Tamil Nadu' : '• Government of India'}</div>
+    <p style="font-size:0.85rem;color:var(--text2);line-height:1.6">${s.description||''}</p>
+    <div class="modal-section-label">Benefits</div>${benefits}
+    <div class="modal-section-label">Documents Required</div>${docs}
+    <div class="apply-box">
+      <div class="modal-section-label" style="margin-top:0">How to Apply</div>
+      <p>${s.how_to_apply||'Visit the official government portal to apply.'}</p>
+      <div class="apply-btns">
+        <a href="${s.scheme_url||'#'}" target="_blank" class="btn btn-primary" style="text-decoration:none">🔗 Apply Now</a>
+        <button class="btn btn-green" onclick="saveApplication(${s.id||0},'${(s.name||'').replace(/'/g,"\\'")}',${s.score||0.5});closeModal()">💾 Save Application</button>
+      </div>
+    </div>`;
+  document.getElementById('schemeModal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('schemeModal') || e.target.classList.contains('modal-close'))
+    document.getElementById('schemeModal').classList.remove('open');
+}
+
+// ── Browse ────────────────────────────────────────────────────────────────────
+async function loadBrowse(search='', source='', type='') {
+  document.getElementById('browseContent').innerHTML = '<div class="empty-state"><div class="spinner" style="margin:0 auto"></div></div>';
+  try {
+    const params = new URLSearchParams({search, source, scheme_type: type, per_page: 30});
+    const res = await fetch(`${API_BASE}/schemes?${params}`);
+    const data = await res.json();
+    const schemes = data.schemes || [];
+    if (!schemes.length) {
+      document.getElementById('browseContent').innerHTML = '<div class="empty-state"><div class="icon">🔍</div><h3>No schemes found</h3></div>';
+      return;
+    }
+    document.getElementById('browseContent').innerHTML = `
+      <div class="results-header">
+        <h2>All Government Schemes</h2>
+        <div class="result-count">${data.total} total</div>
+      </div>
+      <div class="schemes-grid">${schemes.map(s => schemeCardHTML(s, false)).join('')}</div>`;
+  } catch(e) {
+    // Demo fallback
+    const all = getDemoSchemes().filter(s =>
+      (!type || s.scheme_type === type) &&
+      (!source || s.source === source) &&
+      (!search || s.name.toLowerCase().includes(search.toLowerCase()))
+    );
+    document.getElementById('browseContent').innerHTML = `
+      <div class="results-header">
+        <h2>All Schemes (Demo)</h2>
+        <div class="result-count">${all.length} schemes</div>
+      </div>
+      <div class="schemes-grid">${all.map(s => schemeCardHTML(s, false)).join('')}</div>`;
+  }
+}
+
+function searchSchemes() {
+  clearTimeout(window._searchTimer);
+  window._searchTimer = setTimeout(() => {
+    const q = document.getElementById('searchInput').value;
+    const src = document.getElementById('filterSource').value;
+    loadBrowse(q, src, activeTypeFilter);
+  }, 350);
+}
+
+function filterType(type) {
+  activeTypeFilter = type;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  loadBrowse(document.getElementById('searchInput')?.value||'', document.getElementById('filterSource')?.value||'', type);
+}
+
+// ── Applications ──────────────────────────────────────────────────────────────
+function saveApplication(schemeId, schemeName, score) {
+  const existing = savedApplications.find(a => a.scheme_id === schemeId);
+  if (!existing) {
+    savedApplications.push({scheme_id: schemeId, scheme_name: schemeName, score, status:'saved', saved_at: new Date().toISOString()});
+    localStorage.setItem('sc_apps', JSON.stringify(savedApplications));
+    showToast('💾 Scheme saved to My Applications!');
+  } else {
+    showToast('ℹ️ Already saved!');
+  }
+}
+
+function renderApplications() {
+  if (!savedApplications.length) {
+    document.getElementById('applicationsContent').innerHTML = `
+      <div class="empty-state"><div class="icon">📁</div>
+      <h3>No saved applications</h3><p>Save schemes from recommendations</p></div>`;
+    return;
+  }
+  document.getElementById('applicationsContent').innerHTML = `
+    <div class="results-header">
+      <h2>My Saved Schemes</h2>
+      <div class="result-count">${savedApplications.length} saved</div>
+    </div>
+    <div class="schemes-grid">
+      ${savedApplications.map(a => `
+        <div class="scheme-card">
+          <div class="scheme-card-top">
+            <div class="scheme-name">${a.scheme_name}</div>
+            <div class="scheme-score">${Math.round((a.score||0.7)*100)}% match</div>
+          </div>
+          <div class="scheme-meta">
+            <span class="badge badge-fin">📅 Saved ${new Date(a.saved_at).toLocaleDateString('en-IN')}</span>
+            <span class="badge badge-type">📋 ${a.status.toUpperCase()}</span>
+          </div>
+          <div class="scheme-card-footer">
+            <span></span>
+            <button class="btn btn-secondary" style="font-size:0.75rem;padding:7px 14px" onclick="removeApp(${a.scheme_id})">🗑 Remove</button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function removeApp(id) {
+  savedApplications = savedApplications.filter(a => a.scheme_id !== id);
+  localStorage.setItem('sc_apps', JSON.stringify(savedApplications));
+  renderApplications();
+  showToast('🗑 Removed from applications');
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const res = await fetch(`${API_BASE}/admin/stats`);
+    const d = await res.json();
+    document.getElementById('statTotal').textContent = d.total_schemes || '–';
+    document.getElementById('statCentral').textContent = d.sources?.central || '–';
+    document.getElementById('statTN').textContent = d.sources?.state_tn || '–';
+    document.getElementById('statUsers').textContent = d.total_users || '–';
+  } catch(e) {
+    document.getElementById('statTotal').textContent = getDemoSchemes().length;
+    document.getElementById('statCentral').textContent = '500+';
+    document.getElementById('statTN').textContent = '200+';
+    document.getElementById('statUsers').textContent = savedApplications.length > 0 ? '1' : '0';
+  }
+}
+
+// ── Demo Data ─────────────────────────────────────────────────────────────────
+function getDemoSchemes() {
+  return [
+    {id:1,name:"Post Matric Scholarship for SC/ST Students",description:"Financial assistance for SC/ST students studying post-matric to PhD level.",benefits:["Full tuition fee reimbursement","Monthly maintenance allowance ₹1,200–₹1,500"],scheme_type:"scholarship",benefit_type:"financial",source:"central",ministry:"Ministry of Social Justice",scheme_url:"https://scholarships.gov.in",how_to_apply:"Apply via scholarships.gov.in",documents:["Caste Certificate","Income Certificate","Mark Sheet","Aadhaar"],keywords:"sc st scholarship student",caste_list:["sc","st"],max_income:250000,min_age:0,max_age:35,gender_eligible:"all",user_types_list:["student"]},
+    {id:2,name:"NMMS Scholarship",description:"₹12,000/year scholarship for meritorious students from economically weaker sections (Class 9–12).",benefits:["₹12,000 per year","₹1,000 per month for 4 years"],scheme_type:"scholarship",benefit_type:"financial",source:"central",ministry:"Ministry of Education",scheme_url:"https://scholarships.gov.in",how_to_apply:"Via State Education Dept after NMMS exam",documents:["Class VIII Mark Sheet","Income Certificate","Aadhaar"],keywords:"nmms merit scholarship student",caste_list:["all"],max_income:150000,min_age:13,max_age:18,gender_eligible:"all",user_types_list:["student"]},
+    {id:3,name:"Ayushman Bharat PMJAY",description:"Health insurance of ₹5 lakh per family per year for secondary & tertiary care hospitalisation.",benefits:["₹5 lakh health cover","Cashless treatment at 25,000+ hospitals","Pre-existing diseases covered"],scheme_type:"health",benefit_type:"non-financial",source:"central",ministry:"National Health Authority",scheme_url:"https://pmjay.gov.in",how_to_apply:"Check eligibility at pmjay.gov.in or nearest hospital",documents:["Ration Card","Aadhaar"],keywords:"health insurance welfare",caste_list:["all"],max_income:300000,min_age:0,max_age:120,gender_eligible:"all",user_types_list:["all"]},
+    {id:4,name:"PM MUDRA Loan Yojana",description:"Collateral-free micro loans up to ₹10 lakh for small businesses.",benefits:["Shishu: up to ₹50,000","Kishor: up to ₹5 lakh","Tarun: up to ₹10 lakh"],scheme_type:"loan",benefit_type:"financial",source:"central",ministry:"Ministry of Finance",scheme_url:"https://mudra.org.in",how_to_apply:"Apply at any PSU Bank or MUDRA portal",documents:["Aadhaar","PAN","Business Plan"],keywords:"loan business self employed entrepreneur",caste_list:["all"],max_income:9999999,min_age:18,max_age:65,gender_eligible:"all",user_types_list:["self employed","general public"]},
+    {id:5,name:"PM-KISAN Samman Nidhi",description:"₹6,000/year direct income support for farmers in 3 instalments.",benefits:["₹6,000 per year","Direct bank transfer","No middlemen"],scheme_type:"agriculture",benefit_type:"financial",source:"central",ministry:"Agriculture Ministry",scheme_url:"https://pmkisan.gov.in",how_to_apply:"Register at pmkisan.gov.in",documents:["Land Records","Aadhaar","Bank Account"],keywords:"farmer agriculture kisan income",caste_list:["all"],max_income:9999999,min_age:18,max_age:120,gender_eligible:"all",user_types_list:["farmer"],is_farmer:true},
+    {id:6,name:"TN Chief Minister Kalaignar Scholarship",description:"Scholarship for BC/MBC students in Tamil Nadu pursuing higher education.",benefits:["₹5,000 – ₹10,000 per year","Books & equipment allowance"],scheme_type:"scholarship",benefit_type:"financial",source:"state_tn",ministry:"TN BC & MBC Department",scheme_url:"https://tnscholarships.gov.in",how_to_apply:"Apply at tnscholarships.gov.in",documents:["Community Certificate","Income Certificate","Mark Sheet"],keywords:"tn scholarship bc mbc student",caste_list:["bc","mbc","obc"],max_income:200000,min_age:0,max_age:30,gender_eligible:"all",user_types_list:["student"]},
+    {id:7,name:"PMAY-G Housing Scheme",description:"Financial assistance for rural families to build pucca houses.",benefits:["₹1.2 lakh (plains)","₹1.3 lakh (hills)","₹12,000 for Swachh Bharat toilet"],scheme_type:"housing",benefit_type:"financial",source:"central",ministry:"Ministry of Rural Development",scheme_url:"https://pmayg.nic.in",how_to_apply:"Apply through Gram Panchayat",documents:["BPL/SECC data","Aadhaar","Bank Account"],keywords:"housing rural house welfare",caste_list:["all"],max_income:300000,min_age:18,max_age:120,gender_eligible:"all",user_types_list:["all"]},
+    {id:8,name:"National Scholarship for PwD Students",description:"Scholarships for students with benchmark disabilities at all education levels.",benefits:["₹700–₹3,000/month based on level","Pre & post matric both covered"],scheme_type:"scholarship",benefit_type:"financial",source:"central",ministry:"Dept of Empowerment of PwD",scheme_url:"https://scholarships.gov.in",how_to_apply:"Apply on National Scholarship Portal",documents:["Disability Certificate (≥40%)","Income Certificate","Mark Sheet"],keywords:"disability scholarship student pwd",requires_disability:true,caste_list:["all"],max_income:250000,min_age:0,max_age:35,gender_eligible:"all",user_types_list:["student"]},
+    {id:9,name:"Indira Gandhi Scholarship – Single Girl Child",description:"₹36,200/year for single girl children pursuing PG courses.",benefits:["₹36,200 per annum","2-year PG coverage"],scheme_type:"scholarship",benefit_type:"financial",source:"central",ministry:"UGC / Ministry of Education",scheme_url:"https://scholarships.gov.in",how_to_apply:"Apply via National Scholarship Portal",documents:["Single Girl Affidavit","UG Marksheet (60%+)","Aadhaar"],keywords:"single girl scholarship pg female",caste_list:["all"],max_income:9999999,min_age:18,max_age:30,gender_eligible:"female",user_types_list:["student"]},
+    {id:10,name:"CMCHIS – TN Health Insurance",description:"Free health insurance up to ₹5 lakh for TN families with income below ₹1.2L/year.",benefits:["₹5 lakh annual coverage","1,027+ procedures covered","Cashless at govt & private hospitals"],scheme_type:"health",benefit_type:"non-financial",source:"state_tn",ministry:"TN Health & Family Welfare",scheme_url:"https://cmchistn.com",how_to_apply:"Register at nearest Government Hospital",documents:["Ration Card","Aadhaar","Income Certificate"],keywords:"tn health insurance welfare",caste_list:["all"],max_income:120000,min_age:0,max_age:120,gender_eligible:"all",user_types_list:["all"]},
+  ];
+}
+
+// ── UI Helpers ────────────────────────────────────────────────────────────────
+function showLoading(msg='Processing…') {
+  document.getElementById('loadingText').textContent = msg;
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = isError ? 'var(--orange)' : 'var(--green)';
+  t.style.color = isError ? 'var(--orange)' : 'var(--green)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  // Restore saved user id
+  const uid = localStorage.getItem('sc_user_id');
+  if (uid) currentUserId = parseInt(uid);
+
+  // Pre-fill saved profile
+  const sp = localStorage.getItem('sc_profile');
+  if (sp) {
+    try {
+      const p = JSON.parse(sp);
+      const fields = ['name','age','gender','email','phone','state','district','pincode','area_type','caste','religion','annual_income','ration_card_type','user_type','education_level','institution_name','institution_type','course','marks_10th','marks_12th','cgpa','occupation'];
+      fields.forEach(f => { if (p[f] && document.getElementById('f_'+f)) document.getElementById('f_'+f).value = p[f]; });
+      ['bpl_card','first_generation','disability','is_farmer','is_self_employed'].forEach(f => {
+        if (p[f] && document.getElementById('f_'+f)) document.getElementById('f_'+f).checked = true;
+      });
+    } catch(e) {}
+  }
+});
+</script>
+</body>
+</html>
